@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔥 Lighthouse Camp: Zombie Survival</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --fire:#FF6B35;--fire2:#FFD166;--green:#06D6A0;--dark:#1a1a2e;
+  --darker:#0d0d1a;--red:#EF233C;--purple:#9B59B6;--blue:#3498DB;
+  --card-bg:#ffffff0f;--border:#ffffff22;
+}
+body{font-family:'Nunito',sans-serif;background:var(--darker);color:#fff;min-height:100vh;overflow-x:hidden}
+.fredoka{font-family:'Fredoka One',cursive;letter-spacing:.5px}
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 3s infinite alternate}
+@keyframes twinkle{0%{opacity:.2;transform:scale(1)}100%{opacity:.9;transform:scale(1.3)}}
+
+/* SETUP */
+#setup{background:linear-gradient(160deg,#0d0d1a 0%,#1a1a2e 50%,#0f3460 100%);padding:30px 20px;position:relative}
+.setup-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.game-title{text-align:center;margin-bottom:24px}
+.game-title h1{font-family:'Fredoka One',cursive;font-size:3rem;color:var(--fire2);text-shadow:0 0 30px #ff6b3566;line-height:1.1}
+.game-title p{color:#aab;font-size:1rem;margin-top:6px;letter-spacing:1px}
+.setup-card{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:18px}
+.setup-card h3{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--fire2);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-row{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.form-row label{color:#ccd;font-size:.9rem;min-width:120px;font-weight:700}
+input[type=text],input[type=number],select,textarea{background:#ffffff15;border:1px solid #ffffff30;border-radius:10px;color:#fff;padding:9px 14px;font-family:'Nunito',sans-serif;font-size:.95rem;outline:none;transition:border .2s;width:100%}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--fire2)}
+input[type=number]{width:80px}
+select option{background:#1a1a2e;color:#fff}
+textarea{resize:vertical;min-height:70px}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px}
+.team-item{background:#ffffff10;border:1px solid #ffffff20;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px}
+.team-color{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.team-item input{background:transparent;border:none;color:#fff;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;flex:1;outline:none}
+.team-item input::placeholder{color:#666}
+.remove-team{background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:1.1rem;padding:2px 6px;border-radius:6px}
+.remove-team:hover{background:#ff6b6b22}
+.add-team-btn{background:#ffffff10;border:2px dashed #ffffff30;border-radius:12px;padding:10px;color:#aab;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;transition:all .2s;text-align:center;width:100%;margin-top:10px}
+.add-team-btn:hover{background:#ffffff18;border-color:#ffffff55;color:#fff}
+.round-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.round-item{background:#ffffff0c;border:1px solid #ffffff18;border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+.round-num{font-family:'Fredoka One',cursive;color:var(--fire2);font-size:1.1rem;min-width:28px;margin-top:2px}
+.round-info{flex:1}
+.round-info strong{display:block;font-size:.95rem;color:#fff;margin-bottom:2px}
+.round-info span{font-size:.8rem;color:#aab}
+.round-boss-badge{background:#9B59B622;border:1px solid #9B59B655;color:#ce93d8;font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;margin-left:6px}
+.remove-round{background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:8px}
+.challenge-picker{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.challenge-btn{background:#ffffff0c;border:1px solid #ffffff20;border-radius:10px;padding:8px 14px;color:#ccd;font-family:'Nunito',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s;font-weight:700}
+.challenge-btn:hover{background:#FFD16622;border-color:var(--fire2);color:var(--fire2)}
+.challenge-btn.boss{border-color:#9B59B655;color:#ce93d8}
+.challenge-btn.boss:hover{background:#9B59B622}
+.library-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-bottom:12px}
+.lib-item{background:#ffffff0c;border:1px solid #ffffff15;border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px}
+.lib-item strong{flex:1;font-size:.88rem;color:#fff}
+.lib-item small{color:#889;font-size:.78rem}
+.lib-boss-tag{font-size:.7rem;background:#9B59B622;color:#ce93d8;padding:2px 7px;border-radius:20px;border:1px solid #9B59B640;font-weight:700}
+.lib-delete{background:none;border:none;color:#ff6b6b88;cursor:pointer;font-size:.9rem;padding:2px 6px;border-radius:6px}
+.lib-delete:hover{color:#ff6b6b;background:#ff6b6b18}
+.add-challenge-form{background:#ffffff08;border:1px dashed #ffffff25;border-radius:12px;padding:14px;margin-top:10px}
+.add-challenge-form h4{color:#aab;font-size:.85rem;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--purple)}
+.checkbox-row label{color:#ce93d8;font-size:.9rem;font-weight:700}
+.btn{font-family:'Nunito',sans-serif;font-weight:800;border:none;border-radius:14px;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.btn-fire{background:linear-gradient(135deg,var(--fire),var(--fire2));color:#1a0a00;padding:14px 36px;font-size:1.15rem;font-family:'Fredoka One',cursive;box-shadow:0 4px 20px #ff6b3544;border-radius:16px}
+.btn-fire:hover{transform:translateY(-2px);box-shadow:0 8px 28px #ff6b3566}
+.btn-sm{padding:7px 16px;font-size:.85rem;border-radius:10px;background:#ffffff15;color:#fff;border:1px solid #ffffff25;cursor:pointer}
+.btn-sm:hover{background:#ffffff25}
+.btn-green{background:linear-gradient(135deg,#06D6A0,#0fc);color:#003;padding:8px 20px;font-size:.9rem;border-radius:12px;font-weight:800;border:none;cursor:pointer}
+.btn-red{background:linear-gradient(135deg,#ef233c,#c0392b);color:#fff;padding:8px 20px;font-size:.9rem;border-radius:12px;font-weight:800;border:none;cursor:pointer}
+.btn-orange{background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;padding:8px 20px;font-size:.9rem;border-radius:12px;font-weight:800;border:none;cursor:pointer}
+.btn-purple{background:linear-gradient(135deg,#9B59B6,#8e44ad);color:#fff;padding:8px 20px;font-size:.9rem;border-radius:12px;font-weight:800;border:none;cursor:pointer}
+
+/* GAME */
+#game{background:linear-gradient(180deg,#0a0a1a 0%,#0d1b0a 60%,#0a120a 100%);position:relative;min-height:100vh;overflow:hidden}
+.game-hud{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#00000044;border-bottom:1px solid #ffffff15;flex-wrap:wrap;gap:8px}
+.hud-left{display:flex;align-items:center;gap:12px}
+.hud-title{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--fire2)}
+.hud-round{background:#ffffff12;border:1px solid #ffffff22;border-radius:10px;padding:4px 14px;font-size:.9rem;color:#ccd;font-weight:700}
+.lives-display{display:flex;gap:4px}
+.heart{font-size:1.4rem;transition:all .3s}
+.heart.lost{filter:grayscale(1);opacity:.3}
+.upgrades-display{display:flex;gap:6px;align-items:center}
+.upgrade-badge{background:#FFD16622;border:1px solid var(--fire2);border-radius:8px;padding:3px 10px;font-size:.78rem;color:var(--fire2);font-weight:700}
+.debuff-badge{background:#ef233c22;border:1px solid #ef233c;border-radius:8px;padding:3px 10px;font-size:.78rem;color:#ff6b6b;font-weight:700}
+.game-arena{position:relative;width:100%;height:calc(100vh - 60px);overflow:hidden}
+.ground{position:absolute;bottom:0;left:0;width:100%;height:120px;background:linear-gradient(180deg,#1a2e0f 0%,#0f1a08 100%);border-top:2px solid #2d4a1a}
+.ground-detail{position:absolute;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(90deg,transparent,transparent 40px,#2d4a1a11 40px,#2d4a1a11 41px)}
+.lighthouse-wrap{position:absolute;bottom:95px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center}
+.fire-circle{position:absolute;border-radius:50%;border:3px solid var(--fire2);bottom:80px;left:50%;transform:translateX(-50%);pointer-events:none;transition:width .8s,height .8s,border-color .5s,box-shadow .5s;z-index:3}
+.zombie-container{position:absolute;bottom:100px;width:100%;height:200px;z-index:4;pointer-events:none}
+.zombie{position:absolute;bottom:0;animation:zombieWalk 0.8s infinite}
+@keyframes zombieWalk{0%,100%{transform:rotate(-3deg) translateY(0)}25%{transform:rotate(3deg) translateY(-4px)}50%{transform:rotate(-2deg) translateY(0)}75%{transform:rotate(2deg) translateY(-3px)}}
+.zombie img{width:65px;height:85px;mix-blend-mode:lighten;filter:drop-shadow(0 2px 6px #00000088)}
+.rot-king img{width:100px;height:130px;mix-blend-mode:lighten;filter:drop-shadow(0 0 15px #9B59B688)}
+.timer-display{position:absolute;left:50%;transform:translateX(-50%);z-index:10;text-align:center;transition:top .1s}
+.timer-circle{width:120px;height:120px;/* timer circle diameter */ border-radius:50%;background:#00000088;border:3px solid var(--fire2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 20px #FFD16644}
+.timer-num{font-family:'Fredoka One',cursive;font-size:2.8rem;color:var(--fire2);line-height:1} /* timer digits */
+.timer-label{font-size:.7rem;color:#aab;text-transform:uppercase;letter-spacing:1px} /* TIME LEFT text */
+.question-panel{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:10;max-width:700px;/* max box width */ width:calc(100% - 360px);background:#000000aa;border:1px solid var(--fire2);border-radius:16px;padding:20px 26px;/* inner padding */ text-align:center;backdrop-filter:blur(4px)}
+.question-label{font-size:.9rem;color:var(--fire2);text-transform:uppercase;letter-spacing:2px;font-weight:800;margin-bottom:6px} /* ROUND 1 - CHALLENGE */
+.question-text{font-size:1.25rem;font-weight:700;color:#fff;line-height:1.5} /* main task text */
+.question-requirements{font-size:.95rem;color:#aab;margin-top:8px;line-height:1.6} /* requirements line */
+.scoring-panel{position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;gap:8px;max-height:80vh;overflow-y:auto}
+.team-score-card{background:#000000bb;border:1px solid #ffffff22;border-radius:14px;padding:10px 14px;min-width:160px;backdrop-filter:blur(4px)}
+.team-score-card.graded{border-color:#ffffff44}
+.team-name{font-family:'Fredoka One',cursive;font-size:1rem;margin-bottom:6px}
+.fire-display{font-size:1.1rem;letter-spacing:2px;margin-bottom:8px;min-height:22px}
+.grade-btns{display:flex;gap:5px}
+.grade-btn{flex:1;border:none;border-radius:8px;padding:6px 4px;font-size:.7rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s}
+.grade-btn.full{background:#06D6A022;color:#06D6A0;border:1px solid #06D6A066}
+.grade-btn.partial{background:#FFD16622;color:#FFD166;border:1px solid #FFD16666}
+.grade-btn.fail{background:#EF233C22;color:#EF233C;border:1px solid #EF233C66}
+.grade-btn.full.active{background:#06D6A0;color:#003;border-color:#06D6A0}
+.grade-btn.partial.active{background:#FFD166;color:#3a2000;border-color:#FFD166}
+.grade-btn.fail.active{background:#EF233C;color:#fff;border-color:#EF233C}
+.fire-tally{position:absolute;bottom:130px;left:50%;transform:translateX(-50%);z-index:10;background:#000000aa;border:1px solid #ffffff22;border-radius:14px;padding:8px 18px;text-align:center;backdrop-filter:blur(4px)}
+.fire-tally-num{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--fire2)}
+.fire-tally-label{font-size:.7rem;color:#aab;text-transform:uppercase;letter-spacing:1px}
+.teacher-controls{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.survivor-container{position:absolute;bottom:95px;left:50%;transform:translateX(-50%);z-index:4;width:500px;height:160px;pointer-events:none}
+.survivor{position:absolute;bottom:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.survivor img{width:55px;height:70px;mix-blend-mode:lighten;filter:drop-shadow(0 2px 8px #00000088)}
+.survivor-name{font-family:'Fredoka One',cursive;font-size:.55rem;color:#fff;background:#00000066;padding:1px 5px;border-radius:6px;white-space:nowrap;text-align:center}
+@keyframes scaredShake{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.survivor.scared img{animation:scaredShake .3s infinite}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column}
+.overlay.active{display:flex}
+.overlay-backdrop{position:absolute;top:0;left:0;width:100%;height:100%;background:#000000cc;backdrop-filter:blur(6px)}
+.overlay-content{position:relative;z-index:1;text-align:center;padding:30px;max-width:600px;width:90%}
+.overlay-icon{font-size:5rem;margin-bottom:16px;animation:iconPop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes iconPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.overlay-title{font-family:'Fredoka One',cursive;font-size:3rem;margin-bottom:8px;line-height:1}
+.overlay-sub{font-size:1.1rem;color:#ccd;margin-bottom:24px;line-height:1.5}
+.overlay-details{background:#ffffff10;border-radius:14px;padding:16px;margin-bottom:20px;font-size:.95rem;line-height:1.8}
+.silly-challenge-panel{background:linear-gradient(135deg,#1a2e0a,#2e4a10);border:2px solid var(--green);border-radius:20px;padding:24px;margin-bottom:20px;text-align:center}
+.silly-title{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--green);margin-bottom:8px}
+.silly-text{font-size:1.05rem;color:#d4edda;line-height:1.6;padding:12px;background:#ffffff0f;border-radius:12px;border-left:3px solid var(--green)}
+.punishment-panel{background:linear-gradient(135deg,#2e0a0a,#4a1010);border:2px solid var(--red);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center}
+.punishment-text{font-family:'Fredoka One',cursive;font-size:1.5rem;color:#ff6b6b}
+.victory-screen{background:linear-gradient(135deg,#0a2e1a,#0f4a2a);border:2px solid var(--green);border-radius:20px;padding:30px}
+.gameover-screen{background:linear-gradient(135deg,#2e0a0a,#4a0f0f);border:2px solid var(--red);border-radius:20px;padding:30px}
+@keyframes fireFlicker{0%,100%{opacity:1;transform:scaleX(1)}33%{opacity:.8;transform:scaleX(.95)}66%{opacity:.9;transform:scaleX(1.05)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes slideDown{0%{transform:translateY(-20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.fire-anim{animation:fireFlicker .4s infinite}
+.shake{animation:shake .5s ease}
+.slide-down{animation:slideDown .4s ease}
+.pulse{animation:pulse 2s infinite}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#ffffff10}::-webkit-scrollbar-thumb{background:#ffffff30;border-radius:3px}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;z-index:200;display:none;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-backdrop{position:absolute;top:0;left:0;width:100%;height:100%;background:#000000cc}
+.modal-box{position:relative;z-index:1;background:#1a1a2e;border:1px solid var(--border);border-radius:20px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal-box h3{font-family:'Fredoka One',cursive;color:var(--fire2);font-size:1.5rem;margin-bottom:16px}
+#setupError{color:#ff6b6b;margin-top:10px;font-size:.9rem;display:none;text-align:center}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<!-- SETUP -->
+<div id="setup" class="screen active">
+  <div class="setup-inner">
+    <div class="game-title">
+      <h1 class="fredoka">🔥 Lighthouse Camp</h1>
+      <p>ZOMBIE SURVIVAL — TEACHER SETUP</p>
+    </div>
+    <div class="setup-card slide-down">
+      <h3>⚙️ Game Settings</h3>
+      <div class="form-row">
+        <label>Round Timer</label>
+        <input type="number" id="timerInput" value="15" min="1" max="60" style="width:70px"> <span style="color:#aab;font-size:.9rem">minutes</span>
+      </div>
+      <div class="form-row">
+        <label>Camp Lives</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="livesInput" value="3" min="1" max="5" style="width:70px">
+          <span id="livesPreview" style="font-size:1.3rem">❤️❤️❤️</span>
+        </div>
+      </div>
+    </div>
+    <div class="setup-card">
+      <h3>👥 Teams <span style="color:#889;font-size:.85rem;font-family:'Nunito',sans-serif;font-weight:400">(2–6 teams)</span></h3>
+      <div class="team-grid" id="teamGrid"></div>
+      <button class="add-team-btn" id="addTeamBtn" onclick="addTeam()">+ Add Team</button>
+    </div>
+    <div class="setup-card">
+      <h3>📋 Round List <span style="color:#889;font-size:.85rem;font-family:'Nunito',sans-serif;font-weight:400">(1 challenge = 1 round)</span></h3>
+      <div class="round-list" id="roundList"></div>
+      <p style="color:#aab;font-size:.85rem;margin-top:10px;margin-bottom:8px;font-weight:700">Add a challenge:</p>
+      <div class="challenge-picker" id="challengePicker"></div>
+    </div>
+    <div class="setup-card">
+      <h3>📚 Challenge Library</h3>
+      <div class="library-list" id="libraryList"></div>
+      <div class="add-challenge-form">
+        <h4>➕ Add Custom Challenge</h4>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="text" id="newChallengeName" placeholder="Challenge name (e.g. Escape Plan Letter)">
+          <textarea id="newChallengeTask" placeholder="Task description shown to students..."></textarea>
+          <input type="text" id="newChallengeReq" placeholder="Requirements (e.g. Must include 3 steps, transition words...)">
+          <div class="checkbox-row">
+            <input type="checkbox" id="newChallengeBoss">
+            <label for="newChallengeBoss">👑 Boss Round (triggers Rot King)</label>
+          </div>
+          <button class="btn btn-sm" onclick="addCustomChallenge()" style="align-self:flex-start">Save to Library</button>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:10px 0 30px">
+      <button class="btn btn-fire" onclick="startGame()">🔥 Start Game!</button>
+      <p id="setupError"></p>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="game-hud">
+    <div class="hud-left">
+      <span class="hud-title fredoka">🔥 Lighthouse Camp</span>
+      <span class="hud-round" id="hudRound">Round 1</span>
+    </div>
+    <div class="lives-display" id="livesDisplay"></div>
+    <div class="upgrades-display" id="upgradesDisplay"></div>
+    <button class="btn btn-sm" onclick="showPauseMenu()">⏸ Menu</button>
+  </div>
+  <div class="game-arena" id="gameArena">
+    <div class="question-panel slide-down" id="questionPanel">
+      <div class="question-label" id="challengeLabel">Round 1 Challenge</div>
+      <div class="question-text" id="questionText">Loading...</div>
+      <div class="question-requirements" id="questionReq"></div>
+    </div>
+    <div class="timer-display" id="timerDisplay">
+      <div class="timer-circle" id="timerCircle">
+        <div class="timer-num" id="timerNum">15:00</div>
+        <div class="timer-label">time left</div>
+      </div>
+    </div>
+    <div class="fire-circle" id="fireCircle"></div>
+    <div class="lighthouse-wrap" id="lighthouseWrap">
+      <img id="lighthouseImg" src="lighthouse.png" alt="Lighthouse" style="mix-blend-mode:lighten;width:180px;height:auto;filter:drop-shadow(0 0 18px #FFD16688);position:relative;z-index:5;">
+    </div>
+    <div class="survivor-container" id="survivorContainer"></div>
+    <div class="zombie-container" id="zombieContainer"></div>
+    <div class="ground"><div class="ground-detail"></div></div>
+    <div class="fire-tally" id="fireTally">
+      <div class="fire-tally-num" id="fireTallyNum">0 / 0 🔥</div>
+      <div class="fire-tally-label">fire collected</div>
+    </div>
+    <div class="scoring-panel" id="scoringPanel"></div>
+    <div class="teacher-controls">
+      <button class="btn btn-green" id="startRoundBtn" onclick="startTimer()" style="font-family:'Fredoka One',cursive;font-size:1rem;padding:12px 28px">▶ Start Round!</button>
+      <button class="btn btn-red" id="forceEndBtn" onclick="forceEndRound()" style="display:none">⚡ Force Attack!</button>
+      <button class="btn btn-fire" id="announceBtn" onclick="announceResult()" style="display:none;font-family:'Fredoka One',cursive;font-size:1rem;padding:12px 28px">📣 Announce Result!</button>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="overlay" id="resultOverlay">
+  <div class="overlay-backdrop"></div>
+  <div class="overlay-content"><div id="resultContent"></div></div>
+</div>
+<div class="overlay" id="sillyChallengeOverlay">
+  <div class="overlay-backdrop" style="background:#0a1a0a99"></div>
+  <div class="overlay-content"><div id="sillyChallengeContent"></div></div>
+</div>
+<div class="overlay" id="endOverlay">
+  <div class="overlay-backdrop"></div>
+  <div class="overlay-content" style="max-width:700px"><div id="endContent"></div></div>
+</div>
+<div class="modal" id="gradingReminderModal">
+  <div class="modal-backdrop"></div>
+  <div class="modal-box" style="text-align:center;max-width:380px">
+    <div style="font-size:2.5rem;margin-bottom:8px">⚠️</div>
+    <h3 style="color:var(--fire2);margin-bottom:6px">Grade These Teams First!</h3>
+    <p style="color:#aab;font-size:.9rem;margin-bottom:16px">These teams haven't been graded yet.</p>
+    <div id="gradingReminderList" style="margin-bottom:20px;text-align:left"></div>
+    <button class="btn btn-fire" onclick="closeGradingReminder()" style="width:100%;font-family:'Fredoka One',cursive">Got it — Back to Grading</button>
+  </div>
+</div>
+<div class="modal" id="pauseModal">
+  <div class="modal-backdrop" onclick="closePauseMenu()"></div>
+  <div class="modal-box">
+    <h3>⏸ Game Menu</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-sm" onclick="closePauseMenu()">▶ Resume Game</button>
+      <button class="btn btn-sm" onclick="location.reload()">🔄 Back to Setup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── IMAGES ──
+const LIGHTHOUSE_IMG = 'lighthouse.png';
+const IMG_ZOMBIE_1 = 'zombie_1.png';
+const IMG_ZOMBIE_2 = 'zombie_2.png';
+const IMG_ZOMBIE_3 = 'zombie_3.png';
+const IMG_ZOMBIE_4 = 'zombie_4.png';
+const IMG_ZOMBIE_5 = 'zombie_5.png';
+const IMG_ZOMBIE_KING = 'zombie_6.png';
+const IMG_SURVIVOR_SOLDIER   = 'soldier.png';
+const IMG_SURVIVOR_SCIENTIST = 'scientist.png';
+const IMG_SURVIVOR_CHEF      = 'chef.png';
+const IMG_SURVIVOR_EXPLORER  = 'explorer.png';
+const IMG_SURVIVOR_MECHANIC  = 'mechanic.png';
+const IMG_SURVIVOR_ARTIST    = 'artist.png';
+const SURVIVOR_IMGS = [IMG_SURVIVOR_SOLDIER,IMG_SURVIVOR_SCIENTIST,IMG_SURVIVOR_CHEF,IMG_SURVIVOR_EXPLORER,IMG_SURVIVOR_MECHANIC,IMG_SURVIVOR_ARTIST];
+const ZOMBIE_IMGS   = [IMG_ZOMBIE_1,IMG_ZOMBIE_2,IMG_ZOMBIE_3,IMG_ZOMBIE_4,IMG_ZOMBIE_5];
+
+const TEAM_COLORS = ['#FF6B35','#06D6A0','#3498DB','#FFD166','#E91E63','#9B59B6'];
+
+const BUILT_IN_CHALLENGES = [
+  {id:'g1',name:'Game 1 — Expert Survivalist Manual',
+    task:'Your team has been given a vague survival step: "Secure the perimeter." Expand it into a detailed, professional instruction that any survivor could follow without asking questions.',
+    requirements:'Must include: a Precision Verb • a Transition word • at least 2 specific details (tools, locations, numbers)',
+    isBoss:false,builtIn:true},
+  {id:'g2',name:"Game 2 — Survivor's Rule Process Paragraph",
+    task:'The camp leader left behind a useless note: "Find food safely." Your team must expand this vague rule into a full process paragraph that every survivor can follow.',
+    requirements:'Must include: a clear Topic Sentence • 3+ steps using Transition words • 2+ Precision Verbs • a Concluding Sentence',
+    isBoss:false,builtIn:true},
+  {id:'g3',name:'Game 3 — Rebuttal Rumble Boss Battle',
+    task:"The Rot King has fired an argument at your camp! Your team must write a strong SEEL rebuttal to defend the survivors. Listen carefully to the Rot King's argument, then write your response.",
+    requirements:'Must include: Statement (your position) • Example (evidence or detail) • Explanation (why it matters) • Link (connect back to the topic)',
+    isBoss:true,builtIn:true},
+  {id:'g4',name:'Game 4 — Rebuttal Rumble Boss Battle II',
+    task:"The Rot King returns with an even stronger argument! Your team must write a powerful SEEL rebuttal to protect the survivors. Listen carefully to the Rot King's argument, then write your response.",
+    requirements:'Must include: Statement (your position) • Example (evidence or detail) • Explanation (why it matters) • Link (connect back to the topic)',
+    isBoss:true,builtIn:true},
+  {id:'o1',name:'Option 1 — Zombie-Proof Your Home',
+    task:"Your team has been assigned ONE room to barricade. Choose any room and write a process paragraph explaining exactly how to zombie-proof it.",
+    requirements:'Must include: a Topic Sentence naming the room • Precision Verbs • Transition words • 2 specific details per step',
+    isBoss:false,builtIn:true},
+  {id:'o4',name:'Option 4 — The Antidote Recipe',
+    task:"The camp scientist's notes burned up! Your team must reconstruct the full zombie antidote recipe. Be creative but convincing.",
+    requirements:'Must include: a Topic Sentence • 4+ steps with Transition words • Specific creative details • a Concluding Sentence',
+    isBoss:false,builtIn:true},
+];
+
+const BOSS_ARGUMENTS = [
+  "Physical education should be removed from schools. Every minute spent on sports is a minute taken away from Mathematics, Science, or English — subjects that actually determine students' futures.",
+  "Smartphones should be completely banned from classrooms. Every time a student checks their phone, it takes over 20 minutes to fully refocus. Teachers cannot compete with social media, so phones must go.",
+  "Homework should be abolished from all schools immediately. Students already spend 6–8 hours working in class. Forcing them to continue at home destroys family time and causes burnout without improving results.",
+  "Social media does far more harm than good for young people. These platforms are engineered to keep users scrolling, spreading misinformation and damaging mental health far beyond any social benefit.",
+  "Video games are a complete waste of time and teach no real-life skills. Unlike reading or sports, players simply press buttons repeatedly. Hours lost to gaming could build actual talents.",
+  "Reading physical books is outdated. Every piece of information in a book is available online — faster, more up to date, and free. Education must develop digital literacy instead.",
+  "Animals should not be kept in zoos. Locking wild creatures in small enclosures for human entertainment is cruel and selfish. Animals belong in their natural habitats.",
+  "Uniforms should be abolished in all schools. They suppress students' individuality and self-expression without any proven benefit to learning outcomes.",
+  "Fast food restaurants should be banned from operating near schools. They deliberately target young people with cheap, unhealthy food that causes long-term health problems.",
+  "Competitive sports should be removed from schools. They create unnecessary stress and only benefit a small number of athletic students while alienating the majority.",
+  "Students should be allowed to use AI tools for all assignments. Banning AI is like banning calculators — it is an essential modern tool students must learn to use.",
+  "Space exploration is a waste of money. Billions are spent on rockets while millions of people on Earth suffer from poverty, hunger, and lack of clean water."
+];
+
+const SILLY_CHALLENGES = [
+  "👑 The Rot King DEMANDS everyone make their most terrifying zombie face and hold it for 5 full seconds! The King will judge who looks most zombie-like!",
+  "🧠 QUICK! Everyone type the most disgusting possible sandwich ingredient in the chat RIGHT NOW! The grossest answer wins the Rot King's respect!",
+  "🕺 The Rot King challenges the TEACHER to perform a zombie walk across the room! If they do it dramatically enough, the King might spare the camp!",
+  "😱 ZOMBIE FREEZE! Everyone must freeze like a zombie for 10 seconds — arms out, blank face. First person to move or laugh loses their brain!",
+  "📢 Each team has 5 seconds to shout their team name in the most dramatic zombie-apocalypse-worthy voice! Ready... GO!",
+  "🎬 Replace ONE word in a famous movie title with 'ZOMBIE' and type it in the chat! Whoever gets the most laughs wins!",
+  "🔢 The Rot King demands a math battle! First team to shout the answer to: What is 17 × 4? The King respects speed!",
+  "🎭 Everyone must type a one-sentence survival tip using ONLY words that start with the same letter as their team name! 30 seconds!",
+  "💪 The Rot King challenges everyone to flex and say 'We will survive!' in their best heroic voice! On 3... 1... 2... 3!",
+  "🃏 The Rot King plays a trick! Everyone must pat their head and rub their tummy at the same time for 5 seconds. Last one wins!",
+  "🎤 Every team must come up with a 5-word team motto about surviving zombies and chant it out loud! 20 seconds!",
+  "🌟 Quick! Everyone vote: would a zombie eat a pizza? A calculator? A homework book? First team with all 3 answers wins!"
+];
+
+// ── STATE ──
+let library = [];
+let teams = [{name:'Team Alpha'},{name:'Team Bravo'},{name:'Team Charlie'}];
+let rounds = [];
+
+let gameState = {
+  teams:[],rounds:[],timerMinutes:15,campLives:3,
+  currentRound:0,currentLives:3,upgrades:0,debuffs:0,
+  timerInterval:null,timerSeconds:0,timerRunning:false,
+  zombies:[],isRotKingRound:false,teamGrades:{},
+  roundPhase:'playing',sillyChallengeResult:null,writingResult:null,
+  currentBossArgument:''
+};
+
+// ── INIT ──
+function init(){
+  generateStars();
+  loadLibrary();
+  renderTeams();
+  renderLibrary();
+  renderChallengePicker();
+  addDefaultRounds();
+  document.getElementById('livesInput').addEventListener('input', updateLivesPreview);
+}
+
+function generateStars(){
+  const c = document.getElementById('stars');
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div');s.className='star';
+    s.style.cssText=`width:${Math.random()*3+1}px;height:${s.style.width};top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s`;
+    c.appendChild(s);
+  }
+}
+
+function updateLivesPreview(){
+  const n=parseInt(document.getElementById('livesInput').value)||3;
+  document.getElementById('livesPreview').textContent='❤️'.repeat(Math.min(Math.max(n,1),5));
+}
+
+// ── LIBRARY ──
+function loadLibrary(){
+  const saved=localStorage.getItem('lc_library');
+  const custom=saved?JSON.parse(saved):[];
+  library=[...BUILT_IN_CHALLENGES,...custom];
+}
+
+function saveLibrary(){
+  const custom=library.filter(c=>!c.builtIn);
+  localStorage.setItem('lc_library',JSON.stringify(custom));
+}
+
+function renderLibrary(){
+  const el=document.getElementById('libraryList');
+  el.innerHTML=library.map((c,i)=>`
+    <div class="lib-item">
+      <strong>${c.name}</strong>
+      ${c.isBoss?'<span class="lib-boss-tag">👑 BOSS</span>':''}
+      ${c.builtIn?'<small style="color:#556">built-in</small>':`<button class="lib-delete" onclick="deleteChallenge(${i})">✕</button>`}
+    </div>`).join('');
+  renderChallengePicker();
+}
+
+function deleteChallenge(i){
+  if(library[i].builtIn)return;
+  library.splice(i,1);saveLibrary();renderLibrary();
+}
+
+function addCustomChallenge(){
+  const name=document.getElementById('newChallengeName').value.trim();
+  const task=document.getElementById('newChallengeTask').value.trim();
+  const req=document.getElementById('newChallengeReq').value.trim();
+  const isBoss=document.getElementById('newChallengeBoss').checked;
+  if(!name||!task){alert('Please add a name and task description.');return;}
+  library.push({id:'c'+Date.now(),name,task,requirements:req,isBoss,builtIn:false});
+  saveLibrary();renderLibrary();
+  document.getElementById('newChallengeName').value='';
+  document.getElementById('newChallengeTask').value='';
+  document.getElementById('newChallengeReq').value='';
+  document.getElementById('newChallengeBoss').checked=false;
+}
+
+// ── CHALLENGE PICKER ──
+function renderChallengePicker(){
+  const el=document.getElementById('challengePicker');
+  el.innerHTML=library.map((c,i)=>`
+    <button class="challenge-btn ${c.isBoss?'boss':''}" onclick="addRound(${i})">
+      ${c.isBoss?'👑 ':''}${c.name.replace(/Game \d — |Option \d — /,'')}
+    </button>`).join('');
+}
+
+// ── TEAMS ──
+function renderTeams(){
+  const grid=document.getElementById('teamGrid');
+  grid.innerHTML=teams.map((t,i)=>`
+    <div class="team-item">
+      <div class="team-color" style="background:${TEAM_COLORS[i%6]}"></div>
+      <input type="text" value="${t.name}" placeholder="Team name" onchange="teams[${i}].name=this.value">
+      ${teams.length>2?`<button class="remove-team" onclick="removeTeam(${i})">✕</button>`:''}
+    </div>`).join('');
+  document.getElementById('addTeamBtn').style.display=teams.length>=6?'none':'block';
+}
+
+function addTeam(){
+  if(teams.length>=6)return;
+  const names=['Delta','Echo','Foxtrot'];
+  teams.push({name:`Team ${names[teams.length-3]||'New'}`});
+  renderTeams();
+}
+
+function removeTeam(i){
+  if(teams.length<=2)return;
+  teams.splice(i,1);renderTeams();
+}
+
+// ── ROUNDS ──
+function addDefaultRounds(){
+  rounds=[];
+  ['g1','g2','g3','g4'].forEach(id=>{
+    const idx=library.findIndex(c=>c.id===id);
+    if(idx>=0)rounds.push({challengeIdx:idx});
+  });
+  renderRoundList();
+}
+
+function addRound(challengeIdx){
+  rounds.push({challengeIdx});renderRoundList();
+}
+
+function removeRound(i){
+  rounds.splice(i,1);renderRoundList();
+}
+
+function renderRoundList(){
+  const el=document.getElementById('roundList');
+  if(!rounds.length){
+    el.innerHTML='<p style="color:#556;font-size:.85rem;padding:8px">No rounds added yet. Pick challenges below.</p>';return;
+  }
+  el.innerHTML=rounds.map((r,i)=>{
+    const c=library[r.challengeIdx];if(!c)return'';
+    return`<div class="round-item">
+      <span class="round-num">${i+1}</span>
+      <div class="round-info">
+        <strong>${c.name} ${c.isBoss?'<span class="round-boss-badge">👑 BOSS ROUND</span>':''}</strong>
+        <span>${c.task.substring(0,80)}...</span>
+      </div>
+      <button class="remove-round" onclick="removeRound(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── START GAME ──
+function startGame(){
+  const inputs=document.querySelectorAll('#teamGrid input');
+  teams=Array.from(inputs).map((inp,i)=>({name:inp.value.trim()||`Team ${i+1}`,color:TEAM_COLORS[i%6]}));
+  if(teams.length<2){showSetupError('Add at least 2 teams!');return;}
+  if(rounds.length<1){showSetupError('Add at least 1 round!');return;}
+  gameState.teams=teams;
+  gameState.rounds=rounds.map(r=>{return{...r,challenge:library[r.challengeIdx]}});
+  gameState.timerMinutes=parseInt(document.getElementById('timerInput').value)||15;
+  gameState.campLives=parseInt(document.getElementById('livesInput').value)||3;
+  gameState.currentLives=gameState.campLives;
+  gameState.currentRound=0;gameState.upgrades=0;gameState.debuffs=0;
+  document.getElementById('setup').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  startRound();
+}
+
+function showSetupError(msg){
+  const el=document.getElementById('setupError');
+  el.textContent=msg;el.style.display='block';
+  setTimeout(()=>el.style.display='none',3000);
+}
+
+// ── ROUND ──
+function startRound(){
+  const round=gameState.rounds[gameState.currentRound];
+  const challenge=round.challenge;
+  gameState.isRotKingRound=challenge.isBoss;
+  gameState.teamGrades={};gameState.roundPhase='playing';
+  gameState.sillyChallengeResult=null;gameState.writingResult=null;
+  document.getElementById('hudRound').textContent=`Round ${gameState.currentRound+1} of ${gameState.rounds.length}`;
+  renderLives();renderUpgrades();
+  document.getElementById('challengeLabel').textContent=`Round ${gameState.currentRound+1} — ${gameState.isRotKingRound?'👑 BOSS ROUND':'Challenge'}`;
+  if(gameState.isRotKingRound){
+    const arg=BOSS_ARGUMENTS[Math.floor(Math.random()*BOSS_ARGUMENTS.length)];
+    gameState.currentBossArgument=arg;
+    document.getElementById('questionText').innerHTML=`${challenge.task}<br><br><span style="display:block;background:#9B59B622;border-left:3px solid #9B59B6;border-radius:8px;padding:10px 14px;font-style:italic;font-size:1rem;color:#e8d5f5;line-height:1.5">"${arg}"</span>`;
+  }else{
+    document.getElementById('questionText').textContent=challenge.task;
+  }
+  document.getElementById('questionReq').textContent=challenge.requirements?'📌 '+challenge.requirements:'';
+  renderTeamCards();
+  gameState.timerSeconds=gameState.timerMinutes*60;
+  gameState.timerRunning=false;
+  updateTimerDisplay();
+  clearInterval(gameState.timerInterval);
+  document.getElementById('startRoundBtn').style.display='block';
+  document.getElementById('forceEndBtn').style.display='none';
+  document.getElementById('announceBtn').style.display='none';
+  spawnZombies();
+  renderSurvivors();
+  updateFireCircle();
+  setTimeout(positionTimer,80);
+}
+
+// ── TIMER ──
+function startTimer(){
+  if(gameState.timerRunning)return;
+  gameState.timerRunning=true;
+  document.getElementById('startRoundBtn').style.display='none';
+  document.getElementById('forceEndBtn').style.display='block';
+  gameState.timerInterval=setInterval(timerTick,1000);
+}
+
+function timerTick(){
+  gameState.timerSeconds--;
+  updateTimerDisplay();updateZombiePositions();updateLighthouseFire();
+  const pct=gameState.timerSeconds/(gameState.timerMinutes*60);
+  document.querySelectorAll('.survivor').forEach(s=>s.classList.toggle('scared',pct<0.25));
+  if(gameState.timerSeconds<=0){
+    clearInterval(gameState.timerInterval);gameState.timerRunning=false;
+    gameState.roundPhase='grading';
+    document.getElementById('forceEndBtn').style.display='none';
+    document.getElementById('startRoundBtn').style.display='none';
+    document.getElementById('announceBtn').style.display='block';
+    highlightUngradedTeams();
+  }
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(gameState.timerSeconds/60);
+  const s=gameState.timerSeconds%60;
+  document.getElementById('timerNum').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  const progress=gameState.timerSeconds/(gameState.timerMinutes*60);
+  const circle=document.getElementById('timerCircle');
+  if(progress>0.5)circle.style.borderColor='var(--fire2)';
+  else if(progress>0.25)circle.style.borderColor='var(--fire)';
+  else circle.style.borderColor='var(--red)';
+}
+
+function positionTimer(){
+  const panel=document.getElementById('questionPanel');
+  const timerEl=document.getElementById('timerDisplay');
+  if(!panel||!timerEl)return;
+  timerEl.style.top=(panel.offsetTop+panel.offsetHeight+10)+'px';
+}
+
+function forceEndRound(){
+  if(gameState.roundPhase!=='playing')return;
+  clearInterval(gameState.timerInterval);gameState.timerRunning=false;
+  gameState.roundPhase='grading';
+  document.getElementById('forceEndBtn').style.display='none';
+  document.getElementById('startRoundBtn').style.display='none';
+  document.getElementById('announceBtn').style.display='block';
+  highlightUngradedTeams();
+}
+
+function highlightUngradedTeams(){
+  const ungraded=gameState.teams.map((t,i)=>{return{name:t.name,color:t.color,idx:i}}).filter(t=>!gameState.teamGrades[t.idx]);
+  if(ungraded.length===0){announceResult();return;}
+  document.getElementById('gradingReminderList').innerHTML=ungraded.map(t=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #ffffff12">
+      <div style="width:12px;height:12px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
+      <span style="font-weight:700;color:#fff">${t.name}</span>
+    </div>`).join('');
+  document.getElementById('gradingReminderModal').classList.add('active');
+}
+
+function closeGradingReminder(){
+  document.getElementById('gradingReminderModal').classList.remove('active');
+}
+
+function announceResult(){
+  gameState.teams.forEach((_,i)=>{if(!gameState.teamGrades[i])gradeTeam(i,'fail');});
+  document.getElementById('announceBtn').style.display='none';
+  triggerRoundEnd();
+}
+
+// ── ZOMBIES ──
+function spawnZombies(){
+  const container=document.getElementById('zombieContainer');
+  container.innerHTML='';gameState.zombies=[];
+  const count=gameState.isRotKingRound?12:8;
+  const arenaW=window.innerWidth;
+  const centerX=arenaW/2;
+  for(let i=0;i<count;i++){
+    const z=document.createElement('div');z.className='zombie';
+    const isKing=gameState.isRotKingRound&&i===0;
+    if(isKing)z.classList.add('rot-king');
+    const zombieW=isKing?100:65;
+    let startX;
+    if(isKing)startX=arenaW+20;
+    else if(i<count/2)startX=-zombieW-(i*45);
+    else startX=arenaW+((i-count/2)*45);
+    z.style.left=startX+'px';
+    z.style.bottom=(Math.random()*20)+'px';
+    z.style.animationDelay=(Math.random()*0.8)+'s';
+    const src=isKing?IMG_ZOMBIE_KING:ZOMBIE_IMGS[i%ZOMBIE_IMGS.length];
+    z.innerHTML=`<img src="${src}" alt="zombie">`;
+    container.appendChild(z);
+    const spread=isKing?0:((i%(count/2))-(count/4))*75;
+    gameState.zombies.push({el:z,x:startX,startX,targetX:centerX+spread-zombieW/2,isKing});
+  }
+}
+
+function updateZombiePositions(){
+  const total=gameState.timerMinutes*60;
+  const elapsed=total-gameState.timerSeconds;
+  const progress=elapsed/total;
+  gameState.zombies.forEach(z=>{
+    const newX=z.startX+(z.targetX-z.startX)*progress;
+    z.x=newX;z.el.style.left=newX+'px';
+  });
+}
+
+function resetZombies(){spawnZombies();}
+
+// ── LIGHTHOUSE FIRE ──
+function updateLighthouseFire(){
+  const progress=gameState.timerSeconds/(gameState.timerMinutes*60);
+  const img=document.getElementById('lighthouseImg');if(!img)return;
+  const brightness=0.35+progress*0.65;
+  const glow=Math.floor(progress*18);
+  img.style.filter=`drop-shadow(0 0 ${glow}px #FFD16699) brightness(${brightness}) contrast(1.1)`;
+}
+
+// ── FIRE CIRCLE ──
+function updateFireCircle(){
+  const size=180+gameState.upgrades*50;
+  const circle=document.getElementById('fireCircle');
+  circle.style.width=size+'px';circle.style.height=size+'px';
+  if(gameState.upgrades===0){circle.style.borderColor='#FF6B3588';circle.style.boxShadow='0 0 20px #FF6B3544';}
+  else if(gameState.upgrades===1){circle.style.borderColor='#FFD166aa';circle.style.boxShadow='0 0 30px #FFD16655,inset 0 0 20px #FFD16615';}
+  else{circle.style.borderColor='#06D6A0cc';circle.style.boxShadow='0 0 40px #06D6A066,inset 0 0 30px #06D6A022';}
+}
+
+// ── SURVIVORS ──
+function renderSurvivors(){
+  const container=document.getElementById('survivorContainer');if(!container)return;
+  const total=gameState.teams.length;
+  const arenaW=window.innerWidth;
+  const centerX=arenaW/2;
+  // Semicircle arc: spread across 180 degrees below lighthouse
+  // Arc radius and vertical drop create the curved effect
+  const arcRadiusX = 160; // horizontal spread radius
+  const arcRadiusY = 40;  // vertical depth of arc
+  // Angle goes from 180deg (left) to 0deg (right)
+  // For 1 team: center. For 2: left+right. For 3+: spread evenly
+  container.innerHTML=gameState.teams.map((t,i)=>{
+    const angle = total===1 ? Math.PI/2
+      : Math.PI - (i/(total-1))*Math.PI; // 180 to 0 degrees
+    const x = centerX + arcRadiusX*Math.cos(angle) - 32; // 32=half img width
+    const yOffset = arcRadiusY*Math.sin(angle);           // deeper at sides, raised at center
+    const img=SURVIVOR_IMGS[i%SURVIVOR_IMGS.length];
+    return`<div class="survivor" id="survivor${i}" style="left:${x}px;bottom:${yOffset}px">
+      <img src="${img}" alt="${t.name}">
+      <div class="survivor-name" style="border-bottom:2px solid ${t.color}">${t.name}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── TEAM CARDS ──
+function renderTeamCards(){
+  const panel=document.getElementById('scoringPanel');
+  panel.innerHTML=gameState.teams.map((t,i)=>`
+    <div class="team-score-card" id="teamCard${i}">
+      <div class="team-name" style="color:${t.color}">${t.name}</div>
+      <div class="fire-display" id="fireDisplay${i}">— </div>
+      <div class="grade-btns">
+        <button class="grade-btn full" onclick="gradeTeam(${i},'full')">✅ Full</button>
+        <button class="grade-btn partial" onclick="gradeTeam(${i},'partial')">🔥 Half</button>
+        <button class="grade-btn fail" onclick="gradeTeam(${i},'fail')">❌ Fail</button>
+      </div>
+    </div>`).join('');
+  updateFireTally();
+}
+
+function gradeTeam(i,grade){
+  gameState.teamGrades[i]=grade;
+  const card=document.getElementById(`teamCard${i}`);
+  card.classList.add('graded');
+  card.querySelectorAll('.grade-btn').forEach(b=>b.classList.remove('active'));
+  card.querySelector(`.grade-btn.${grade}`).classList.add('active');
+  const fire=document.getElementById(`fireDisplay${i}`);
+  if(grade==='full')fire.textContent='🔥';
+  else if(grade==='partial')fire.textContent='🔥½';
+  else fire.textContent='💨';
+  updateFireTally();
+}
+
+function calculateFire(){
+  let total=0;
+  const grades={...gameState.teamGrades};
+  let conversions=gameState.upgrades;
+  Object.keys(grades).forEach(k=>{if(grades[k]==='partial'&&conversions>0){grades[k]='full_upgraded';conversions--;}  });
+  Object.values(grades).forEach(g=>{
+    if(g==='full'||g==='full_upgraded')total+=1;
+    else if(g==='partial')total+=0.5;
+  });
+  return total;
+}
+
+function updateFireTally(){
+  const total=calculateFire();
+  const max=gameState.teams.length;
+  document.getElementById('fireTallyNum').textContent=`${total} / ${max} 🔥`;
+}
+
+function getThreshold(){
+  const max=gameState.teams.length;
+  let threshold=max/2;
+  if(gameState.isRotKingRound)threshold+=1;
+  if(gameState.debuffs>0)threshold+=0.5*gameState.debuffs;
+  return threshold;
+}
+
+// ── ROUND END ──
+function triggerRoundEnd(){
+  clearInterval(gameState.timerInterval);
+  const fire=calculateFire();
+  const threshold=getThreshold();
+  gameState.writingResult=fire>=threshold?'pass':'fail';
+  if(gameState.isRotKingRound){
+    showSillyChallenge();
+  }else{
+    resolveRound(gameState.writingResult==='pass',false);
+  }
+}
+
+function showSillyChallenge(){
+  const silly=SILLY_CHALLENGES[Math.floor(Math.random()*SILLY_CHALLENGES.length)];
+  document.getElementById('sillyChallengeContent').innerHTML=`
+    <div class="silly-challenge-panel">
+      <div style="font-size:3.5rem;margin-bottom:8px">👑😤</div>
+      <div class="silly-title">ROT KING'S BONUS CHALLENGE!</div>
+      <p style="color:#d4edda;margin-bottom:12px;font-size:.85rem">Complete this to earn the King's mercy...</p>
+      <div class="silly-text">${silly}</div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-green" onclick="resolveSillyChallenge('pass')">🎉 Class Succeeded!</button>
+      <button class="btn btn-red" onclick="resolveSillyChallenge('fail')">💀 Class Failed!</button>
+    </div>`;
+  document.getElementById('sillyChallengeOverlay').classList.add('active');
+}
+
+function resolveSillyChallenge(result){
+  document.getElementById('sillyChallengeOverlay').classList.remove('active');
+  gameState.sillyChallengeResult=result;
+  const writing=gameState.writingResult;
+  const silly=result;
+  let survived=false;let punishMsg='';
+  if(writing==='pass'&&silly==='pass'){survived=true;}
+  else if(writing==='pass'&&silly==='fail'){survived=true;punishMsg=applyPunishment();}
+  else if(writing==='fail'&&silly==='pass'){survived=true;}
+  else{survived=false;punishMsg=applyPunishment();}
+  showRoundResult(survived,true,punishMsg,false);
+}
+
+function applyPunishment(){
+  const roll=Math.floor(Math.random()*3);
+  if(roll===0&&gameState.upgrades>0){
+    gameState.upgrades=Math.max(0,gameState.upgrades-1);updateFireCircle();renderUpgrades();
+    return'💀 The Rot King STOLE one of your upgrades! The fire circle shrinks!';
+  }else if(roll===1){
+    gameState.debuffs++;renderUpgrades();
+    return'🌑 The Rot King weakened your fire! Next round threshold is harder!';
+  }else{
+    gameState.currentLives=Math.max(0,gameState.currentLives-1);renderLives();
+    return'❤️ The Rot King claimed a life directly!';
+  }
+}
+
+function resolveRound(survived,isBossRound){
+  const fire=calculateFire();
+  const earnedUpgrade=fire>=3;
+  if(survived===true){
+    if(earnedUpgrade&&!isBossRound){gameState.upgrades++;updateFireCircle();renderUpgrades();}
+  }else{
+    gameState.currentLives=Math.max(0,gameState.currentLives-1);renderLives();
+  }
+  showRoundResult(survived===true,false,'',earnedUpgrade&&!isBossRound);
+}
+
+function showRoundResult(survived,isRotKing,punishMsg,earnedUpgrade){
+  const fire=calculateFire();
+  const threshold=getThreshold();
+  let html='';
+  if(survived){
+    html=`<div class="victory-screen">
+      <div class="overlay-icon">🛡️</div>
+      <div class="overlay-title" style="color:var(--green)">CAMP SURVIVED!</div>
+      <div class="overlay-sub">The fire held! The zombies retreat for now...</div>
+      <div class="overlay-details">
+        🔥 Fire collected: <strong>${fire}</strong> / ${gameState.teams.length}<br>
+        📊 Threshold needed: <strong>${threshold}</strong><br>
+        ${earnedUpgrade?'<span style="color:var(--fire2)">⭐ UPGRADE EARNED! Fire circle grows!</span><br>':''}
+        ${punishMsg?`<span style="color:#ff6b6b">${punishMsg}</span>`:''}</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        ${gameState.currentRound+1<gameState.rounds.length
+          ?`<button class="btn btn-fire" onclick="nextRound()">Next Round ➡</button>`
+          :`<button class="btn btn-fire" onclick="showVictory()">🏆 See Results!</button>`}
+      </div></div>`;
+  }else{
+    const livesLeft=gameState.currentLives;
+    html=`<div class="gameover-screen">
+      <div class="overlay-icon">${livesLeft>0?'💥':'☠️'}</div>
+      <div class="overlay-title" style="color:var(--red)">${livesLeft>0?'CAMP HIT!':'CAMP DESTROYED!'}</div>
+      <div class="overlay-sub">${livesLeft>0?`The horde broke through! ${livesLeft} life/lives remaining...`:'The Rot King has claimed the lighthouse...'}</div>
+      <div class="overlay-details">
+        🔥 Fire collected: <strong>${fire}</strong> / ${gameState.teams.length}<br>
+        📊 Threshold needed: <strong>${threshold}</strong><br>
+        ❤️ Lives remaining: <strong>${livesLeft}</strong><br>
+        ${punishMsg?`<span style="color:#ff6b6b">${punishMsg}</span>`:''}</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        ${livesLeft<=0
+          ?`<button class="btn btn-red" onclick="showGameOver()">💀 Game Over</button>`
+          :gameState.currentRound+1<gameState.rounds.length
+            ?`<button class="btn btn-fire" onclick="nextRound()">Next Round ➡</button>`
+            :`<button class="btn btn-red" onclick="showGameOver()">💀 See Results</button>`}
+      </div></div>`;
+  }
+  document.getElementById('resultContent').innerHTML=html;
+  document.getElementById('resultOverlay').classList.add('active');
+}
+
+function nextRound(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  document.getElementById('announceBtn').style.display='none';
+  gameState.debuffs=Math.max(0,gameState.debuffs-1);
+  gameState.currentRound++;
+  resetZombies();startRound();
+}
+
+// ── ENDINGS ──
+function showVictory(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  document.getElementById('endContent').innerHTML=`
+    <div class="victory-screen" style="text-align:center">
+      <div style="font-size:5rem;margin-bottom:12px">🏆🔥🏆</div>
+      <div class="overlay-title" style="color:var(--green);font-size:3.5rem">VICTORY!</div>
+      <div class="overlay-sub" style="font-size:1.2rem">The lighthouse stands! Humanity survives another night!</div>
+      <div style="background:#ffffff10;border-radius:14px;padding:20px;margin:20px 0">
+        <p style="color:var(--fire2);font-weight:800;margin-bottom:8px;font-family:'Fredoka One',cursive;font-size:1.3rem">Final Camp Stats</p>
+        <p style="margin-top:10px;color:var(--fire2)">⭐ Total Upgrades Earned: ${gameState.upgrades}</p>
+        <p>❤️ Lives Remaining: ${gameState.currentLives}</p>
+      </div>
+      <button class="btn btn-fire" onclick="location.reload()" style="font-size:1.1rem;padding:14px 40px">🔄 Play Again</button>
+    </div>`;
+  document.getElementById('endOverlay').classList.add('active');
+}
+
+function showGameOver(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  document.getElementById('endContent').innerHTML=`
+    <div class="gameover-screen" style="text-align:center">
+      <div style="font-size:5rem;margin-bottom:12px">☠️👑☠️</div>
+      <div class="overlay-title" style="color:var(--red);font-size:3.5rem">GAME OVER</div>
+      <div class="overlay-sub" style="font-size:1.1rem;margin-bottom:20px">The Rot King has claimed the lighthouse...<br>The camp is lost.</div>
+      <div style="background:#ffffff10;border-radius:14px;padding:16px;margin-bottom:20px;font-size:.95rem">
+        <p>Survived <strong>${gameState.currentRound}</strong> of ${gameState.rounds.length} rounds</p>
+        <p style="margin-top:6px">Upgrades earned: <strong>${gameState.upgrades}</strong></p>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-red" onclick="location.reload()">🔄 Try Again</button>
+      </div>
+    </div>`;
+  document.getElementById('endOverlay').classList.add('active');
+}
+
+// ── HUD ──
+function renderLives(){
+  const el=document.getElementById('livesDisplay');
+  el.innerHTML=Array.from({length:gameState.campLives},(_,i)=>
+    `<span class="heart ${i>=gameState.currentLives?'lost':''}">❤️</span>`).join('');
+}
+
+function renderUpgrades(){
+  const el=document.getElementById('upgradesDisplay');
+  let html='';
+  if(gameState.upgrades>0)html+=`<span class="upgrade-badge">⭐ ×${gameState.upgrades} Upgrade${gameState.upgrades>1?'s':''}</span>`;
+  if(gameState.debuffs>0)html+=`<span class="debuff-badge">🌑 Weakened</span>`;
+  el.innerHTML=html;
+}
+
+// ── PAUSE ──
+function showPauseMenu(){
+  clearInterval(gameState.timerInterval);
+  document.getElementById('pauseModal').classList.add('active');
+}
+
+function closePauseMenu(){
+  document.getElementById('pauseModal').classList.remove('active');
+  if(gameState.roundPhase==='playing'&&gameState.timerSeconds>0&&gameState.timerRunning){
+    gameState.timerInterval=setInterval(timerTick,1000);
+  }
+}
+
+// ── BOOT ──
+init();
+window.addEventListener('resize', positionTimer);
+</script>
+</body>
+</html>
