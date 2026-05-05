@@ -718,23 +718,17 @@ function updateFireCircle(){
 function renderSurvivors(){
   const container=document.getElementById('survivorContainer');if(!container)return;
   const total=gameState.teams.length;
-  // Get the actual lighthouse element position
-  const lh = document.getElementById('lighthouseWrap');
-  const arena = document.getElementById('gameArena');
-  if(!lh||!arena) return;
-  const lhRect = lh.getBoundingClientRect();
-  const arenaRect = arena.getBoundingClientRect();
-  // Lighthouse center relative to arena
-  const lighthouseCX = lhRect.left - arenaRect.left + lhRect.width/2;
-  const arcRadiusX = 100; // px left/right spread around lighthouse
-  const arcRadiusY = 25;  // px vertical curve
+  const arenaW=container.offsetWidth; // width of survivor container = arena width
+  const centerX=arenaW/2; // lighthouse is always at 50% of arena
+  const arcRadiusX = 95;  // tight arc around lighthouse base
+  const arcRadiusY = 20;  // subtle vertical curve
   const imgW = 65;
   container.innerHTML=gameState.teams.map((t,i)=>{
     const angle = total===1
       ? Math.PI/2
       : Math.PI - (i/(total-1))*Math.PI;
-    const x = lighthouseCX + arcRadiusX*Math.cos(angle) - imgW/2;
-    const yOffset = arcRadiusY*Math.sin(angle);
+    const x = centerX + arcRadiusX*Math.cos(angle) - imgW/2;
+    const yOffset = Math.max(0, arcRadiusY*Math.sin(angle));
     const img=SURVIVOR_IMGS[i%SURVIVOR_IMGS.length];
     return`<div class="survivor" id="survivor${i}" style="left:${x}px;bottom:${yOffset}px">
       <img src="${img}" alt="${t.name}">
