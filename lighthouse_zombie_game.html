@@ -101,7 +101,7 @@ textarea{resize:vertical;min-height:70px}
 @keyframes zombieWalk{0%,100%{transform:rotate(-3deg) translateY(0)}25%{transform:rotate(3deg) translateY(-4px)}50%{transform:rotate(-2deg) translateY(0)}75%{transform:rotate(2deg) translateY(-3px)}}
 .zombie img{width:65px;height:85px;mix-blend-mode:lighten;filter:drop-shadow(0 2px 6px #00000088)}
 .rot-king img{width:100px;height:130px;mix-blend-mode:lighten;filter:drop-shadow(0 0 15px #9B59B688)}
-.timer-display{position:absolute;left:50%;transform:translateX(-50%);z-index:10;text-align:center;transition:top .1s}
+.timer-display{position:relative;left:50%;transform:translateX(-50%);z-index:10;text-align:center;transition:top .1s}
 .timer-circle{width:120px;height:120px;/* timer circle diameter */ border-radius:50%;background:#00000088;border:3px solid var(--fire2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 20px #FFD16644}
 .timer-num{font-family:'Fredoka One',cursive;font-size:2.8rem;color:var(--fire2);line-height:1} /* timer digits */
 .timer-label{font-size:.7rem;color:#aab;text-transform:uppercase;letter-spacing:1px} /* TIME LEFT text */
@@ -240,11 +240,11 @@ textarea{resize:vertical;min-height:70px}
       <div class="question-label" id="challengeLabel">Round 1 Challenge</div>
       <div class="question-text" id="questionText">Loading...</div>
       <div class="question-requirements" id="questionReq"></div>
-    </div>
-    <div class="timer-display" id="timerDisplay">
-      <div class="timer-circle" id="timerCircle">
-        <div class="timer-num" id="timerNum">15:00</div>
-        <div class="timer-label">time left</div>
+      <div id="timerDisplay" style="margin-top:12px">
+    <div class="timer-circle" id="timerCircle" style="margin:0 auto">
+      <div class="timer-num" id="timerNum">15:00</div>
+      <div class="timer-label">time left</div>
+        </div>
       </div>
     </div>
     <div class="fire-circle" id="fireCircle"></div>
