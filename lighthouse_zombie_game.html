@@ -719,18 +719,19 @@ function renderSurvivors(){
   const container=document.getElementById('survivorContainer');if(!container)return;
   const total=gameState.teams.length;
   const arenaW=window.innerWidth;
-  const centerX=arenaW/2;
-  // Semicircle arc: spread across 180 degrees below lighthouse
-  // Arc radius and vertical drop create the curved effect
-  const arcRadiusX = 160; // horizontal spread radius
-  const arcRadiusY = 40;  // vertical depth of arc
-  // Angle goes from 180deg (left) to 0deg (right)
-  // For 1 team: center. For 2: left+right. For 3+: spread evenly
+  // Lighthouse is always at horizontal center of screen
+  const lighthouseCX = arenaW / 2;
+  // Tight semicircle around lighthouse base
+  const arcRadiusX = 110; // how far left/right from lighthouse center
+  const arcRadiusY = 30;  // vertical curve depth
+  const imgW = 65;
   container.innerHTML=gameState.teams.map((t,i)=>{
-    const angle = total===1 ? Math.PI/2
-      : Math.PI - (i/(total-1))*Math.PI; // 180 to 0 degrees
-    const x = centerX + arcRadiusX*Math.cos(angle) - 32; // 32=half img width
-    const yOffset = arcRadiusY*Math.sin(angle);           // deeper at sides, raised at center
+    // Spread evenly from left side to right side of lighthouse
+    const angle = total===1
+      ? Math.PI/2  // single team: directly in front
+      : Math.PI - (i/(total-1))*Math.PI; // 180deg=left, 0deg=right
+    const x = lighthouseCX + arcRadiusX*Math.cos(angle) - imgW/2;
+    const yOffset = arcRadiusY*Math.sin(angle); // arc dips at sides
     const img=SURVIVOR_IMGS[i%SURVIVOR_IMGS.length];
     return`<div class="survivor" id="survivor${i}" style="left:${x}px;bottom:${yOffset}px">
       <img src="${img}" alt="${t.name}">
