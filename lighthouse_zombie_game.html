@@ -660,7 +660,7 @@ function announceResult(){
 function spawnZombies(){
   const container=document.getElementById('zombieContainer');
   container.innerHTML='';gameState.zombies=[];
-  const count=gameState.isRotKingRound?12:8;
+  const count=gameState.isRotKingRound?28:20;
   const arenaW=window.innerWidth;
   const centerX=arenaW/2;
   for(let i=0;i<count;i++){
@@ -670,8 +670,8 @@ function spawnZombies(){
     const zombieW=isKing?100:65;
     let startX;
     if(isKing)startX=arenaW+20;
-    else if(i<count/2)startX=-zombieW-(i*45);
-    else startX=arenaW+((i-count/2)*45);
+    else if(i<count/2)startX=-zombieW-(i*80);
+    else startX=arenaW+((i-count/2)*80);
     z.style.left=startX+'px';
     z.style.bottom=(Math.random()*20)+'px';
     z.style.animationDelay=(Math.random()*0.8)+'s';
